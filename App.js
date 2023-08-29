@@ -1,14 +1,7 @@
-import './App.css'
 import {Component} from 'react'
-
-import {Switch, Route, Redirect} from 'react-router-dom'
-
-import ThemeContext from './context/ThemeContext'
-
+import {Route, Switch, Redirect} from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
-
 import LoginForm from './components/LoginForm'
-
 import Home from './components/Home'
 import VideoDetailView from './components/VideoDetailView'
 import TrendingVideos from './components/TrendingVideos'
@@ -16,26 +9,32 @@ import GamingVideos from './components/GamingVideos'
 import SavedVideos from './components/SavedVideos'
 import NotFound from './components/NotFound'
 
+import ThemeAndVideoContext from './context/ThemeAndVideoContext'
+
+import './App.css'
+
+// Replace your code here
+
 class App extends Component {
   state = {
-    isDarkTheme: false,
     savedVideos: [],
+    isDarkTheme: false,
     activeTab: 'Home',
   }
 
-  toggleTheme = () => {
-    this.setState(prevState => ({isDarkTheme: !prevState.isDarkTheme}))
+  changeTab = tab => {
+    this.setState({activeTab: tab})
   }
 
-  changeActiveTab = tab => {
-    this.setState({activeTab: tab})
+  toggleTheme = () => {
+    this.setState(prevState => ({
+      isDarkTheme: !prevState.isDarkTheme,
+    }))
   }
 
   addVideo = video => {
     const {savedVideos} = this.state
-
     const index = savedVideos.findIndex(eachVideo => eachVideo.id === video.id)
-
     if (index === -1) {
       this.setState({savedVideos: [...savedVideos, video]})
     } else {
@@ -44,18 +43,26 @@ class App extends Component {
     }
   }
 
-  render() {
-    const {isDarkTheme, savedVideos, activeTab} = this.state
+  removeVideo = id => {
+    const {savedVideos} = this.state
+    const updatedSavedVideos = savedVideos.filter(
+      eachVideo => eachVideo.id !== id,
+    )
+    this.setState({savedVideos: updatedSavedVideos})
+  }
 
+  render() {
+    const {savedVideos, isDarkTheme, activeTab} = this.state
+    // console.log(savedVideos)
     return (
-      <ThemeContext.Provider
+      <ThemeAndVideoContext.Provider
         value={{
-          isDarkTheme,
           savedVideos,
+          isDarkTheme,
           activeTab,
           toggleTheme: this.toggleTheme,
-          changeActiveTab: this.changeActiveTab,
           addVideo: this.addVideo,
+          changeTab: this.changeTab,
         }}
       >
         <Switch>
@@ -72,7 +79,7 @@ class App extends Component {
           <Route path="/not-found" component={NotFound} />
           <Redirect to="not-found" />
         </Switch>
-      </ThemeContext.Provider>
+      </ThemeAndVideoContext.Provider>
     )
   }
 }
